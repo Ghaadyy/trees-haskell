@@ -1,7 +1,8 @@
 module Tree (
     Tree(Empty, Node),
     search,
-    insert
+    insert,
+    insertFoldl
 ) where 
 
 -- data Tree a = Empty | Node a (Tree a) (Tree a)
@@ -11,7 +12,7 @@ data Tree a = Empty | Node {
     value :: a,
     left :: Tree a,
     right :: Tree a
-} deriving (Show, Read, Eq)
+} deriving (Show, Read, Eq, Foldable)
 
 search :: (Eq a, Ord a) => Tree a -> a -> Bool
 search Empty _ = False
@@ -65,6 +66,13 @@ insert el Empty  = Node el Empty Empty
 insert el (Node v l r)
     | el >= v = balance $ Node v l (insert el r)
     | otherwise = balance $ Node v (insert el l) r
+
+insertFoldl :: (Eq a, Ord a) => a -> Tree a -> Tree a
+insertFoldl el = foldl func (Node el Empty Empty)
+    where   func Empty el = Node el Empty Empty
+            func (Node v l r) el
+                | el < v    = balance $ Node v (insertFoldl el l) r
+                | otherwise = balance $ Node v l (insertFoldl el r)
 
 -- BST insertions (balanced)
 -- foldl
